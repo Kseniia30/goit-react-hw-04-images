@@ -4,7 +4,8 @@ const GalleryList = styled.ul`
     display: flex;
     flex-wrap: wrap;
     margin-right: -10px;
-    margin-top: -10px
+    margin-top: -10px;
+    margin-bottom: 10px;
 `
 const GalleryItem = styled.li`
     width: calc(100% / 2 - 10px);

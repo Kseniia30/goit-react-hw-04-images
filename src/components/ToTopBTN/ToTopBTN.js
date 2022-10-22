@@ -1,13 +1,15 @@
-import { PureComponent } from "react";
+import PropTypes from 'prop-types';
 import { TbArrowBigUpLine } from "react-icons/tb";
 import { TopBTN } from "../App/App.styled"
 
-export class ToTopBTN extends PureComponent {
-    render() {
-        return (
-            <TopBTN onClick={this.props.backToTop}>
-                <TbArrowBigUpLine/>
-            </TopBTN>
-        )
-    }
+export const ToTopBTN = ({backToTop}) => {
+    return (
+        <TopBTN onClick={backToTop}>
+            <TbArrowBigUpLine/>
+        </TopBTN>
+    )
+}
+
+ToTopBTN.propTypes = {
+    backToTop: PropTypes.func
 }

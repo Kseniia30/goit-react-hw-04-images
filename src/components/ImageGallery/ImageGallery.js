@@ -1,19 +1,21 @@
-import { PureComponent } from "react";
 import { ImageGalleryItem } from "./ImageGalleryItem";
-import {GalleryList} from "./ImageGallery.styled"
+import { GalleryList } from "./ImageGallery.styled"
+import PropTypes from 'prop-types';
 
-export class ImageGallery extends PureComponent {
+export const ImageGallery = ({imageArr, openLarge}) => {
+    return (
+        <GalleryList>
+            {imageArr.map(image => {
+                const {id, webformatURL, largeImageURL, tags} = image
+                return (
+                    <ImageGalleryItem id={id} key={id} webformatURL={webformatURL} largeImageURL={largeImageURL} tags={tags} openLarge={openLarge}/>
+                )
+            })}
+        </GalleryList>
+    )
+}
 
-    render() {
-        return (
-            <GalleryList>
-                {this.props.imageArr.map(image => {
-                    const {id, webformatURL, largeImageURL, tags} = image
-                    return (
-                        <ImageGalleryItem id={id} key={id} webformatURL={webformatURL} largeImageURL={largeImageURL} tags={tags} openLarge={this.props.openLarge}/>
-                    )
-                })}
-            </GalleryList>
-        )
-    }
+ImageGallery.propTypes = {
+    imageArr: PropTypes.array,
+    openLarge: PropTypes.func
 }

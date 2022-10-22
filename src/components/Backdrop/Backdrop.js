@@ -1,38 +1,43 @@
-import { PureComponent } from "react";
+import { useEffect } from "react";
 import { createPortal } from "react-dom";
-import {BackdropBox, ModalBox} from "./Backdrop.styled"
+import { BackdropBox, ModalBox } from "./Backdrop.styled"
+import PropTypes from 'prop-types';
 
 const modalRoot = document.querySelector("#modal-root")
 
-export class Modal extends PureComponent {
-    componentDidMount() {
-        window.addEventListener("keydown", this.handleEsc)
-        window.addEventListener("click", this.handleClick)
-    }
-    componentWillUnmount() {
-        window.removeEventListener("keydown", this.handleEsc)
-        window.removeEventListener("click", this.handleClick)
-    }
-    handleEsc = evt => {
+export const Modal = ({onClose, children}) => {
+    const handleEsc = evt => {
         evt.preventDefault()
             if (evt.code === "Escape") {
-                this.props.onClose()
+                onClose()
             }
     }
-    handleClick = evt => {
+    const handleClick = evt => {
         if (evt.target === document.querySelector("#\\#backdrop")) {
-            this.props.onClose()
+            onClose()
         }
     }
-    render() {
-        return createPortal(
-            <BackdropBox id="#backdrop">
-                <ModalBox>
-                    {this.props.children}
-                </ModalBox>
-            </BackdropBox>,
-            modalRoot
-        )
-    }
+
+    useEffect(() => {
+        window.addEventListener("keydown", handleEsc)
+        window.addEventListener("click", handleClick)
+
+        return () => {
+            window.removeEventListener("keydown", handleEsc)
+            window.removeEventListener("click", handleClick)};
+    }, [handleEsc, handleClick]);
+
+    return createPortal(
+        <BackdropBox id="#backdrop">
+            <ModalBox>
+                {children}
+            </ModalBox>
+        </BackdropBox>,
+        modalRoot
+    )
 }
 
+Modal.propTypes = {
+    onClose: PropTypes.func,
+    children: PropTypes.element
+}

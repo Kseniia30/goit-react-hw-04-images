@@ -1,20 +1,14 @@
-import { PureComponent } from "react";
 import { Header } from "./Searchbar.styled";
-import { SearchBox } from "./SearchForm";
+import PropTypes from 'prop-types';
 
-export class Searchbar extends PureComponent {
-    state = {
-        images: [],
-    }
-    addImages = query => {
-        this.props.onResult(query)
-    }
+export const Searchbar = ({children}) => {
+    return (
+        <Header>
+            {children}
+        </Header>
+    )
+}
 
-    render() {
-        return (
-            <Header>
-                <SearchBox onSubmit={this.addImages} />
-            </Header>
-        )
-    }
+Searchbar.propTypes = {
+    children: PropTypes.element
 }

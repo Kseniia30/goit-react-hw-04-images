@@ -4,69 +4,80 @@ import { fetchImages } from "components/fetchImg";
 import { ImageGallery } from "components/ImageGallery/ImageGallery";
 import { Button } from "components/LoadMoreBTN/LoadMoreBTN";
 import { Searchbar } from "components/Searchbar/Searchbar";
-import { PureComponent } from "react";
+import { useEffect, useState } from "react";
 import { MainSection } from "./App.styled"
 import { Loader } from "components/Loader/Loader";
 import { StartPicture } from "components/StartPicture/StartPicture";
 import { ToTopBTN } from "components/ToTopBTN/ToTopBTN";
+import Notiflix from 'notiflix';
+import { SearchBox } from "components/Searchbar/SearchForm";
 
-const Status = {
-    IDLE: 'idle',
-    PENDING: 'pending',
-    RESOLVED: 'resolved',
-    REJECTED: 'rejected',
-};
+export const AppBox = () => {
+    const [query, setQuery] = useState("")
+    const [page, setPage] = useState(1)
+    const [images, setImages] = useState([])
+    const [showModal, setShowModal] = useState(false)
+    const [largeIMG, setLargeIMG] = useState("")
+    const [modalTags, setModalTags] = useState("")
+    const [modalImageId, setModalImageId] = useState("")
+    const [status, setStatus] = useState("idle")
+    const [error, setError] = useState(null)
+    const [totalHits, setTotalHits] = useState(0)
 
-export class AppBox extends PureComponent {
-    state = {
-        query: "",
-        page: 1,
-        images: [],
-        showModal: false,
-        largeIMG: "",
-        modalTags: "",
-        modalImageId: "",
-        status: Status.IDLE,
-        error: null
-    }
-    componentDidUpdate(_, prevState) {
-        if (prevState.query !== this.state.query) {
-            this.setState({ status: Status.PENDING });
+    useEffect(() => {
+        if (query === "") {
+            return
         }
-        if (prevState.query !== this.state.query || prevState.page !== this.state.page) {
-            fetchImages({ query: this.state.query, page: this.state.page })
-                .then(res => {
-                    const results = res.data.hits
-                    this.setState({ status: Status.RESOLVED })
-                    this.setState({images: [...this.state.images, ...results]})
+        setStatus("pending")
+    }, [query])
+
+    useEffect(() => {
+        if (query === "") {
+            return
+        }
+        fetchImages(query, page)
+            .then(res => {
+                const results = res.data.hits
+                setImages(images => ([...images, ...results]))
+                setTotalHits(res.data.totalHits)
+                setStatus("resolved")
+                if (results.length === 0) {
+                    Notiflix.Notify.failure('There is no images about your query. try something else, please')
+                }
             })
-            .catch(error => { this.setState({ error, status: Status.REJECTED }) })
+            .catch(error => {
+                setError(error)
+                setStatus("rejected")
+                Notiflix.Notify.failure(error)
+            })
+    }, [query, page])
+
+    const submitInfo = (evt) => {
+        evt.preventDefault()
+        if (evt.target.elements.query.value === "") {
+            Notiflix.Notify.failure('Please, enter search query');
         }
+        setQuery(evt.target.elements.query.value)
+        setPage(1)
+        setImages([])
     }
-    submitInfo = (query) => {
-        this.setState({
-            query: query,
-            page: 1,
-            images: []
-        })
+
+    const loadMore = page => {
+        setPage(page => (page+1))
     }
-    loadMore = page => {
-        this.setState({page: this.state.page + 1})
+
+    const toggleModal = (evt) => {
+        setShowModal(!showModal)
     }
-    toggleModal = (evt) => {
-        this.setState(({ showModal }) => ({
-            showModal: !showModal
-        }))
+
+    const openLargeImage = evt => {
+        toggleModal()
+        setLargeIMG(evt.target.dataset.src)
+        setModalTags(evt.target.alt)
+        setModalImageId(evt.target.dataset.id)
     }
-    openLargeImage = evt => {
-        this.toggleModal()
-        this.setState({
-            largeIMG: evt.target.dataset.src,
-            modalTags: evt.target.alt,
-            modalImageId: evt.target.dataset.id
-        })
-    }
-    backToTop() {
+
+    const backToTop = () => {
         const timer = () => {window.scrollBy(0, -300);}
         const interval = setInterval(timer, 10)
         setTimeout(() => {
@@ -74,35 +85,35 @@ export class AppBox extends PureComponent {
         }, 1000);
     }
 
-    render() {
         return (
             <>
-                <Searchbar onResult={this.submitInfo} />
+                <Searchbar>
+                    <SearchBox onSubmit={submitInfo}/>
+                </Searchbar>
 
-                {this.state.status === "pending" &&
+                {status === "pending" &&
                     <Loader/>}
                 
                 <MainSection>
 
-                    {this.state.status === "idle" && 
+                    {status === "idle" && 
                         <StartPicture/>}
                     
-                {this.state.status === "resolved" && 
-                    <ImageGallery imageArr={this.state.images} openLarge={this.openLargeImage} />}
+                    {status === "resolved" && 
+                        <ImageGallery imageArr={images} openLarge={openLargeImage} />}
                     
-                    {this.state.images.length !== 0 &&
-                        <>
-                        <Button onPage={this.loadMore} />
-                        <ToTopBTN backToTop={this.backToTop}/>
-                        </>}
+                    {images.length !== 0 &&
+                        <ToTopBTN backToTop={backToTop}/>}
+                    
+                    {images.length !== 0 && images.length !== totalHits &&
+                        <Button onPage={loadMore} />}
                     
                 </MainSection>
 
-                {this.state.showModal && 
-                    <Modal onClose={this.toggleModal}>
-                        <BackdropImage key={this.state.modalImageId} largeIMG={this.state.largeIMG} modalTags={this.state.modalTags}/>
+                {showModal && 
+                    <Modal onClose={toggleModal}>
+                        <BackdropImage key={modalImageId} largeIMG={largeIMG} modalTags={modalTags}/>
                     </Modal> }
             </>
         )
     }
-}

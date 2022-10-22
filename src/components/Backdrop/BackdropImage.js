@@ -1,10 +1,12 @@
-import { PureComponent } from "react";
+import PropTypes from 'prop-types';
 
-export class BackdropImage extends PureComponent {
+export const BackdropImage = ({ largeIMG, modalTags }) => {
+    return (
+        <img src={largeIMG} alt={modalTags} width="1000" height="auto"/>
+    )
+}
 
-    render() {
-        return (
-            <img key={this.props.id} src={this.props.largeIMG} alt={this.props.modalTags} width="1000" height="auto"/>
-        )
-    }
+BackdropImage.propTypes = {
+    largeIMG: PropTypes.string,
+    modalTags: PropTypes.string
 }

@@ -1,18 +1,19 @@
-import { PureComponent } from "react";
-import {LoadMoreButton} from "./LoadMoreBTN.styled"
+import { useState } from "react";
+import { LoadMoreButton } from "./LoadMoreBTN.styled"
+import PropTypes from 'prop-types';
 
-export class Button extends PureComponent {
-    state = {
-        page: 1
-    }
-    loadMore = evt => {
-        const page = this.state.page
-        this.props.onPage(page)
+export const Button = ({ onPage }) => {
+    const [pageNumber] = useState(1)
+
+    const loadMore = evt => {
+        onPage(pageNumber)
     }
 
-    render() {
-        return (
-            <LoadMoreButton type="button" onClick={this.loadMore}>Load More</LoadMoreButton>
-        )
-    }
+    return (
+        <LoadMoreButton type="button" onClick={loadMore}>Load More</LoadMoreButton>
+    )
+}
+
+Button.propTypes = {
+    onPage: PropTypes.func
 }
