@@ -21,7 +21,6 @@ export const AppBox = () => {
     const [modalTags, setModalTags] = useState("")
     const [modalImageId, setModalImageId] = useState("")
     const [status, setStatus] = useState("idle")
-    const [error, setError] = useState(null)
     const [totalHits, setTotalHits] = useState(0)
 
     useEffect(() => {
@@ -46,7 +45,6 @@ export const AppBox = () => {
                 }
             })
             .catch(error => {
-                setError(error)
                 setStatus("rejected")
                 Notiflix.Notify.failure(error)
             })
