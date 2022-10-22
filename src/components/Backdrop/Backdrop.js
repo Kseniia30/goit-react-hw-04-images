@@ -6,7 +6,10 @@ import PropTypes from 'prop-types';
 const modalRoot = document.querySelector("#modal-root")
 
 export const Modal = ({onClose, children}) => {
-    const handleEsc = evt => {
+    
+
+    useEffect(() => {
+        const handleEsc = evt => {
         evt.preventDefault()
             if (evt.code === "Escape") {
                 onClose()
@@ -16,16 +19,15 @@ export const Modal = ({onClose, children}) => {
         if (evt.target === document.querySelector("#\\#backdrop")) {
             onClose()
         }
-    }
-
-    useEffect(() => {
+        }
+        
         window.addEventListener("keydown", handleEsc)
         window.addEventListener("click", handleClick)
 
         return () => {
             window.removeEventListener("keydown", handleEsc)
             window.removeEventListener("click", handleClick)};
-    }, [handleEsc, handleClick]);
+    }, [onClose]);
 
     return createPortal(
         <BackdropBox id="#backdrop">
